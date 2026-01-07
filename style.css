@@ -1,0 +1,31 @@
+/* 全体レイアウト */
+body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif; background: #11111b; color: #cdd6f4; overflow: hidden; }
+.app { display: flex; height: 100vh; }
+
+/* 左サイドバー */
+.side { width: 220px; background: #181825; border-right: 1px solid #313244; flex-shrink: 0; }
+.logo { padding: 25px; font-weight: bold; font-size: 1.2rem; color: #fff; border-bottom: 1px solid #313244; }
+.item { padding: 15px 25px; cursor: pointer; color: #a6adc8; transition: 0.3s; }
+.item.active { background: #313244; color: #89b4fa; border-left: 4px solid #89b4fa; }
+
+/* 中央：石レンガ背景 */
+.main { 
+    flex-grow: 1; display: flex; align-items: center; justify-content: center;
+    background-image: url('bg-stone.png'); 
+    background-size: 128px; background-repeat: repeat; image-rendering: pixelated;
+    box-shadow: inset 0 0 150px rgba(0,0,0,0.7); 
+}
+
+/* インベントリ */
+.inv-box { background: #c6c6c6; padding: 10px; border: 3px solid #555; box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff; }
+.grid { display: grid; grid-template-columns: repeat(9, 52px); gap: 2px; background: #8b8b8b; }
+.slot { width: 52px; height: 52px; background: #8b8b8b; border: 2px solid; border-color: #373737 #fff #fff #373737; display: flex; align-items: center; justify-content: center; }
+.slot:hover { outline: 2px solid #fff; z-index: 5; background: rgba(255,255,255,0.2); }
+.slot img { width: 32px; height: 32px; image-rendering: pixelated; }
+
+/* 右プロパティパネル */
+.prop { width: 320px; background: #181825; border-left: 1px solid #313244; padding: 25px; flex-shrink: 0; box-sizing: border-box; }
+h3 { color: #f5c2e7; margin: 0 0 20px 0; border-bottom: 1px solid #313244; padding-bottom: 10px; }
+label { display: block; font-size: 11px; color: #89b4fa; margin-bottom: 5px; font-weight: bold; }
+input { width: 100%; background: #313244; border: 1px solid #45475a; color: #fff; padding: 10px; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px; }
+button { width: 100%; padding: 15px; background: #89b4fa; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; color: #11111b; }

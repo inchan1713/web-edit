@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeluxeMenu Crafter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="side">
+            <div class="logo">DM CRAFTER</div>
+            <nav>
+                <div class="item active">EDITOR</div>
+                <div class="item">YAML PREVIEW</div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="inv-box">
+                <div class="grid" id="inventory"></div>
+            </div>
+        </main>
+
+        <section class="prop">
+            <h3>ITEM SETTINGS</h3>
+            <div class="input-group">
+                <label>DISPLAY NAME</label>
+                <input type="text" id="name" placeholder="&bNew Item">
+            </div>
+            <div class="input-group">
+                <label>MATERIAL ID</label>
+                <input type="text" id="mat" placeholder="DIAMOND">
+            </div>
+            <button id="save-btn">SAVE TO SLOT</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
