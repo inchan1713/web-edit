@@ -1,52 +1,53 @@
 body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; background: #11111b; color: #cdd6f4; overflow: hidden; }
 .app { display: flex; height: 100vh; }
 
+/* 左サイドバー */
 .side { width: 220px; background: #181825; border-right: 1px solid #313244; flex-shrink: 0; }
 .logo { padding: 25px; font-weight: bold; font-size: 1.2rem; color: #fff; border-bottom: 1px solid #313244; }
 .item { padding: 15px 25px; cursor: pointer; color: #a6adc8; }
 .item.active { background: #313244; color: #89b4fa; border-left: 4px solid #89b4fa; }
 
+/* 中央エリア：背景をぼかすための設定 */
 .main { 
     flex-grow: 1; 
     display: flex; 
     align-items: center; 
     justify-content: center;
-    position: relative; /* ぼかし用の重なりを設定 */
-    background-color: #1a1b26; /* 背景のベース色 */
+    position: relative; /* 子要素の配置基準 */
+    background-color: #1a1b26;
     overflow: hidden;
 }
 
-/* 背景画像専用の層を作ってぼかす */
+/* 背景画像専用の層（ここで大きく・暗く・ぼかす） */
 .main::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('boddy.png');
-    background-size: 256px; /* 【大きくした】128pxから2倍のサイズへ */
+    top: -10%; left: -10%; right: -10%; bottom: -10%; /* ぼかしの縁が白くならないよう少し広げる */
+    background-image: url('bg.png'); /* 画像ファイル名に合わせました */
+    background-size: 320px; /* 【大きく】さらにブロックを巨大化 */
     background-repeat: repeat;
-    image-rendering: pixelated;
-    filter: blur(2px) brightness(0.6); /* 【目に優しく】少しぼかして暗くする */
+    image-rendering: pixelated; /* ドット感を維持 */
+    filter: blur(5px) brightness(0.4); /* 【目に優しく】ぼかしを強め、暗く設定 */
     z-index: 1;
 }
 
-/* インベントリが背景の下に隠れないように調整 */
+/* インベントリ：背景に埋もれないよう浮かせる */
 .inv-box { 
-    position: relative; 
-    z-index: 2; 
+    position: relative;
+    z-index: 2;
     background: #c6c6c6; 
     padding: 10px; 
     border: 3px solid #555; 
-    box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff, 0 20px 50px rgba(0,0,0,0.5); 
+    box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff, 0 20px 60px rgba(0,0,0,0.8); 
 }
 
-.inv-box { background: #c6c6c6; padding: 10px; border: 3px solid #555; box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff; }
 .grid { display: grid; grid-template-columns: repeat(9, 52px); gap: 2px; background: #8b8b8b; }
 .slot { width: 52px; height: 52px; background: #8b8b8b; border: 2px solid; border-color: #373737 #fff #fff #373737; display: flex; align-items: center; justify-content: center; }
 .slot:hover { outline: 2px solid #fff; z-index: 5; background: rgba(255,255,255,0.2); }
 
+/* 右プロパティパネル */
 .prop { width: 320px; background: #181825; border-left: 1px solid #313244; padding: 25px; flex-shrink: 0; box-sizing: border-box; }
 h3 { color: #f5c2e7; margin: 0 0 20px 0; border-bottom: 1px solid #313244; padding-bottom: 10px; }
 label { display: block; font-size: 11px; color: #89b4fa; margin-bottom: 5px; font-weight: bold; }
 input { width: 100%; background: #313244; border: 1px solid #45475a; color: #fff; padding: 10px; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px; }
 button { width: 100%; padding: 15px; background: #89b4fa; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; color: #11111b; }
-
