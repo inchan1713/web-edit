@@ -1,53 +1,30 @@
-body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; background: #11111b; color: #cdd6f4; overflow: hidden; }
+/* 全体レイアウト */
+body, html { margin: 0; padding: 0; height: 100%; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background: #11111b; color: #cdd6f4; overflow: hidden; }
 .app { display: flex; height: 100vh; }
 
-/* 左サイドバー */
 .side { width: 220px; background: #181825; border-right: 1px solid #313244; flex-shrink: 0; }
-.logo { padding: 25px; font-weight: bold; font-size: 1.2rem; color: #fff; border-bottom: 1px solid #313244; }
-.item { padding: 15px 25px; cursor: pointer; color: #a6adc8; }
+.logo { padding: 25px; font-weight: bold; font-size: 1.1rem; color: #fff; border-bottom: 1px solid #313244; letter-spacing: 1px; }
+.item { padding: 15px 25px; cursor: pointer; color: #a6adc8; font-size: 0.9rem; }
 .item.active { background: #313244; color: #89b4fa; border-left: 4px solid #89b4fa; }
 
-/* 中央エリア：背景をぼかすための設定 */
-.main { 
-    flex-grow: 1; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    position: relative; /* 子要素の配置基準 */
-    background-color: #1a1b26;
-    overflow: hidden;
-}
-
-/* 背景画像専用の層（ここで大きく・暗く・ぼかす） */
+.main { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; background-color: #0f111a; overflow: hidden; }
 .main::before {
-    content: "";
-    position: absolute;
-    top: -10%; left: -10%; right: -10%; bottom: -10%; /* ぼかしの縁が白くならないよう少し広げる */
-    background-image: url('bg.png'); /* 画像ファイル名に合わせました */
-    background-size: 320px; /* 【大きく】さらにブロックを巨大化 */
-    background-repeat: repeat;
-    image-rendering: pixelated; /* ドット感を維持 */
-    filter: blur(5px) brightness(0.4); /* 【目に優しく】ぼかしを強め、暗く設定 */
-    z-index: 1;
+    content: ""; position: absolute; top: -5%; left: -5%; right: -5%; bottom: -5%;
+    background-image: url('bg.png'); background-size: 400px; background-repeat: repeat;
+    image-rendering: pixelated; filter: blur(8px) brightness(0.3); z-index: 1;
 }
 
-/* インベントリ：背景に埋もれないよう浮かせる */
-.inv-box { 
-    position: relative;
-    z-index: 2;
-    background: #c6c6c6; 
-    padding: 10px; 
-    border: 3px solid #555; 
-    box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff, 0 20px 60px rgba(0,0,0,0.8); 
-}
-
+/* インベントリ */
+.inv-box { position: relative; z-index: 2; background: #c6c6c6; padding: 5px 10px 10px 10px; border: 3px solid #555; box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff, 0 30px 60px rgba(0,0,0,0.9); }
+.inv-title { color: #3f3f3f; font-size: 14px; margin-bottom: 5px; font-weight: bold; }
 .grid { display: grid; grid-template-columns: repeat(9, 52px); gap: 2px; background: #8b8b8b; }
 .slot { width: 52px; height: 52px; background: #8b8b8b; border: 2px solid; border-color: #373737 #fff #fff #373737; display: flex; align-items: center; justify-content: center; }
-.slot:hover { outline: 2px solid #fff; z-index: 5; background: rgba(255,255,255,0.2); }
+.slot:hover { outline: 2px solid #fff; z-index: 5; background: rgba(255,255,255,0.2); cursor: pointer; }
 
-/* 右プロパティパネル */
+/* 右パネル */
 .prop { width: 320px; background: #181825; border-left: 1px solid #313244; padding: 25px; flex-shrink: 0; box-sizing: border-box; }
-h3 { color: #f5c2e7; margin: 0 0 20px 0; border-bottom: 1px solid #313244; padding-bottom: 10px; }
+h3 { color: #f5c2e7; margin: 0 0 20px 0; border-bottom: 1px solid #313244; padding-bottom: 10px; font-size: 1.1rem; }
 label { display: block; font-size: 11px; color: #89b4fa; margin-bottom: 5px; font-weight: bold; }
-input { width: 100%; background: #313244; border: 1px solid #45475a; color: #fff; padding: 10px; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px; }
-button { width: 100%; padding: 15px; background: #89b4fa; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; color: #11111b; }
+input, textarea { width: 100%; background: #313244; border: 1px solid #45475a; color: #fff; padding: 10px; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px; font-family: inherit; }
+button { width: 100%; padding: 15px; background: #89b4fa; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; color: #11111b; transition: 0.2s; }
+button:hover { background: #b4befe; }
