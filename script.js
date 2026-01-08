@@ -1,53 +1,51 @@
-const inventory = document.getElementById('inventory');
-const matInput = document.getElementById('mat');
-const nameInput = document.getElementById('name');
-const loreInput = document.getElementById('lore');
-const saveBtn = document.getElementById('save-btn');
+// アイテムデータの保持用
+let minecraftItems = [];
 
-// 1. 54個のスロットを生成
-for (let i = 0; i < 54; i++) {
-    const slot = document.createElement('div');
-    slot.classList.add('slot');
-    slot.dataset.slot = i;
-    
-    const img = document.createElement('img');
-    img.classList.add('item-icon');
-    img.style.display = 'none';
-    slot.appendChild(img);
+// ページ読み込み時にAPIからアイテムデータを取得
+async function fetchMinecraftItems() {
+    const materialInput = document.getElementById('material-id'); // あなたのHTMLのIDに合わせました
+    if (!materialInput) return;
 
-    slot.addEventListener('click', () => {
-        document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
-        slot.classList.add('selected');
+    try {
+        // PrismarineJSのデータ（最新の1.21）を使用
+        const response = await fetch('https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21/items.json');
+        const data = await response.json();
         
-        // スロットがデータを持っていれば入力欄に反映
-        matInput.value = img.dataset.id || "";
-    });
-    inventory.appendChild(slot);
+        // アイテム名（ID）のリストを作成
+        minecraftItems = data.map(item => item.name.toUpperCase());
+
+        // HTMLにdatalist（入力候補の箱）を作成して紐付け
+        let dataList = document.getElementById('item-list-suggestions');
+        if (!dataList) {
+            dataList = document.createElement('datalist');
+            dataList.id = 'item-list-suggestions';
+            document.body.appendChild(dataList);
+        }
+        
+        // 入力欄に候補リストを紐付ける
+        materialInput.setAttribute('list', 'item-list-suggestions');
+
+        // datalistの中に全アイテムを流し込む
+        dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
+        
+        console.log("アイテムリストを読み込みました:", minecraftItems.length, "種類");
+    } catch (error) {
+        console.error("アイテムデータの取得に失敗しました:", error);
+    }
 }
 
-// 2. 「スロットに保存」ボタンを押した時にアイコンを確定させる
-saveBtn.addEventListener('click', () => {
-    const selected = document.querySelector('.slot.selected');
-    if (!selected) {
-        alert("スロットを選択してください！");
-        return;
-    }
+// ページを読み込んだら実行
+window.addEventListener('DOMContentLoaded', fetchMinecraftItems);
 
-    const val = matInput.value.toUpperCase().trim();
-    const img = selected.querySelector('img');
+// --- 以下、既存のロジック用（必要に応じて調整） ---
 
-    if (val !== "") {
-        // 画像を更新して表示
-        img.src = `https://minecraft-api.com/api/items/${val.toLowerCase()}/64.png`;
-        img.style.display = 'block';
-        img.dataset.id = val; // スロット自体にIDを保存
-        
-        img.onerror = () => { 
-            img.style.display = 'none'; 
-            alert("アイテムIDが正しくない可能性があります。");
-        };
+// スロットに保存するボタンの動作
+document.getElementById('save-item')?.addEventListener('click', () => {
+    const materialValue = document.getElementById('material-id').value.toUpperCase();
+    
+    if (minecraftItems.length > 0 && !minecraftItems.includes(materialValue)) {
+        alert("警告: '" + materialValue + "' は正しいアイテムIDではない可能性があります。");
     } else {
-        img.style.display = 'none';
-        img.dataset.id = "";
+        alert("スロットに保存しました！: " + materialValue);
     }
 });
