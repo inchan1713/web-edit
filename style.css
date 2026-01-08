@@ -57,4 +57,7 @@ input, textarea {
 button { 
     width: 100%; padding: 12px; background: #7aa2f7; border: none; 
     font-weight: bold; cursor: pointer; border-radius: 4px; color: #16161e; 
+
+    
 }
+
