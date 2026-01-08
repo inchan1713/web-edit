@@ -79,4 +79,30 @@ document.getElementById('save-btn')?.addEventListener('click', () => {
     } else {
         alert("✅ スロットに保存しました: " + materialValue);
     }
+    
+    // 保存ボタンの動作をアップグレード
+document.getElementById('save-btn')?.addEventListener('click', () => {
+    const materialValue = document.getElementById('material-id').value.toLowerCase(); // 画像取得のため小文字に
+    const selectedSlot = document.querySelector('.slot.selected');
+
+    if (!selectedSlot) {
+        alert("まず編集したいスロットをクリックして選択してください！");
+        return;
+    }
+
+    if (minecraftItems.includes(materialValue.toUpperCase())) {
+        // 画像を表示するためのimgタグを作成または更新
+        let img = selectedSlot.querySelector('img');
+        if (!img) {
+            img = document.createElement('img');
+            selectedSlot.appendChild(img);
+        }
+        // アイテム画像をセット（外部APIを利用）
+        img.src = `https://mc-heads.net/item/${materialValue}`;
+        img.alt = materialValue;
+        
+        alert("✅ スロット " + selectedSlot.dataset.index + " に保存しました");
+    } else {
+        alert("⚠️ 正しいアイテムIDを入力してください");
+    }
 });
