@@ -1,38 +1,26 @@
 let minecraftItems = [];
+const SPRITE_WIDTH = 32; // 1枚の画像に横32個並んでいる
 
-// 1. 予測変換の初期化 (絶対に消えないように実行順序を整理)
-async function setupItemData() {
-    const materialInput = document.getElementById('material-id');
-    const dataList = document.getElementById('item-suggestions');
-    
-    const url = 'https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21.4/items.json';
+async function initApp() {
+    const input = document.getElementById('material-id');
+    const dl = document.getElementById('item-suggestions');
     
     try {
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        // アイテムIDを抽出
-        minecraftItems = data.map(item => item.name.toUpperCase());
+        const res = await fetch('https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21.4/items.json');
+        const data = await res.json();
+        minecraftItems = data;
 
-        // datalistの中身を構築
-        dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
-        
-        // インプットにdatalistを強制紐付け
-        materialInput.setAttribute('list', 'item-suggestions');
-        
-        console.log("✅ 予測変換リスト構築完了");
-    } catch (e) {
-        console.error("データ取得失敗:", e);
-    }
-}
+        // 予測変換の構築
+        dl.innerHTML = data.map(item => `<option value="${item.name.toUpperCase()}">`).join('');
+        console.log("✅ アイテムデータ読み込み完了: " + data.length + "種類");
+    } catch (e) { console.error("データ取得失敗"); }
 
-// 2. インベントリ生成
-function createInventory() {
+    // インベントリ生成
     const grid = document.getElementById('inventory');
     grid.innerHTML = '';
     for (let i = 0; i < 54; i++) {
         const slot = document.createElement('div');
-        slot.classList.add('slot');
+        slot.className = 'slot';
         slot.innerHTML = `<span>${i}</span>`;
         slot.onclick = () => {
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
@@ -42,47 +30,29 @@ function createInventory() {
     }
 }
 
-// 3. 画像配置処理 (Wiki制限を回避する最強ルート)
 document.getElementById('save-btn')?.addEventListener('click', () => {
     const val = document.getElementById('material-id').value.toUpperCase().trim();
     const slot = document.querySelector('.slot.selected');
 
-    if (!slot || !val) return;
-    if (!minecraftItems.includes(val)) return alert("有効なIDではありません");
-
-    slot.querySelectorAll('img, .no-img').forEach(el => el.remove());
-
-    const lowId = val.toLowerCase();
+    if (!slot) return alert("スロットを選択してください");
     
-    // 【決定版】取得URLリスト (Wikiの制限を回避できる順序)
-    const urls = [
-        `https://mc-heads.net/item/${lowId}`, // 1. コンパス、時計、ポーションに最強（Wikiのコピー）
-        `https://minecraft-api.vercel.app/images/items/${lowId}.png`, // 2. 高速バックアップ
-        `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.21/items/${lowId}.png` // 3. 最終手段
-    ];
+    // アイテムを探してスプライト座標を取得
+    const item = minecraftItems.find(i => i.name.toUpperCase() === val);
+    if (!item) return alert("無効なアイテムIDです");
 
-    const img = document.createElement('img');
-    let attempt = 0;
+    slot.querySelectorAll('.item-icon').forEach(el => el.remove());
 
-    const tryNext = () => {
-        if (attempt < urls.length) {
-            img.src = urls[attempt];
-            attempt++;
-        } else {
-            const err = document.createElement('div');
-            err.className = 'no-img';
-            err.innerText = '無';
-            slot.appendChild(err);
-        }
-    };
+    // 座標計算 (ID番号を元に位置を特定)
+    const iconId = item.id;
+    const x = (iconId % SPRITE_WIDTH) * 32;
+    const y = Math.floor(iconId / SPRITE_WIDTH) * 32;
 
-    img.onerror = tryNext;
-    slot.appendChild(img);
-    tryNext();
+    const icon = document.createElement('div');
+    icon.className = 'item-icon';
+    icon.style.backgroundPosition = `-${x}px -${y}px`;
+    
+    slot.appendChild(icon);
+    console.log(`スロットに ${val} (ID:${iconId}) を配置しました`);
 });
 
-// 実行
-document.addEventListener('DOMContentLoaded', () => {
-    setupItemData();
-    createInventory();
-});
+document.addEventListener('DOMContentLoaded', initApp);
