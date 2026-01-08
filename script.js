@@ -3,25 +3,20 @@ let minecraftItems = [];
 
 /**
  * MinecraftのアイテムID一覧を取得する
- * 1.21.4のデータURLに修正しました
  */
 async function loadMinecraftItems() {
     const materialInput = document.getElementById('material-id');
     if (!materialInput) return;
 
-    // 正しいURLに修正 (1.21 -> 1.21.4)
     const url = 'https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21.4/items.json';
 
     try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error('データが見つかりませんでした(404)');
-        
+        if (!response.ok) throw new Error('データ取得失敗');
         const data = await response.json();
         
-        // アイテムIDを抽出して大文字に変換
         minecraftItems = data.map(item => item.name.toUpperCase());
 
-        // 候補を表示するためのdatalistを作成
         let dataList = document.getElementById('item-suggestions');
         if (!dataList) {
             dataList = document.createElement('datalist');
@@ -29,36 +24,39 @@ async function loadMinecraftItems() {
             document.body.appendChild(dataList);
         }
         
-        // 入力欄に紐付け
         materialInput.setAttribute('list', 'item-suggestions');
         dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
         
         console.log("✅ アイテム読み込み完了: " + minecraftItems.length + "種類");
     } catch (error) {
-        console.error("❌ アイテムデータの取得に失敗しました:", error);
-        // 失敗した時のための最低限のバックアップ
-        minecraftItems = ["DIAMOND", "IRON_INGOT", "DIRT", "STONE", "CHEST"];
+        console.error("❌ アイテム読み込みエラー:", error);
     }
 }
 
 /**
- * チェストの54スロットを画面に作る
+ * 54スロットを生成
  */
 function initInventory() {
     const inventory = document.getElementById('inventory');
     if (!inventory) return;
-    inventory.innerHTML = ''; // 既存の中身をクリア
+    inventory.innerHTML = '';
 
     for (let i = 0; i < 54; i++) {
         const slot = document.createElement('div');
         slot.classList.add('slot');
         slot.dataset.index = i;
+        
+        // スロット番号を薄く表示（任意）
+        const span = document.createElement('span');
+        span.style.fontSize = '10px';
+        span.style.color = '#555';
+        span.innerText = i;
+        slot.appendChild(span);
+
         slot.addEventListener('click', () => {
-            console.log("スロット " + i + " が選択されました");
-            // 全スロットから選択状態を解除
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
-            // クリックしたスロットを選択状態に
             slot.classList.add('selected');
+            console.log("スロット " + i + " が選択されました");
         });
         inventory.appendChild(slot);
     }
@@ -73,36 +71,27 @@ window.addEventListener('DOMContentLoaded', () => {
 // 保存ボタンの動作
 document.getElementById('save-btn')?.addEventListener('click', () => {
     const materialValue = document.getElementById('material-id').value.toUpperCase();
-    
-    if (minecraftItems.length > 0 && !minecraftItems.includes(materialValue)) {
-        alert("⚠️ アイテムID '" + materialValue + "' が見つかりません。\n正しいIDを入力してください。");
-    } else {
-        alert("✅ スロットに保存しました: " + materialValue);
-    }
-    
-    // 保存ボタンの動作をアップグレード
-document.getElementById('save-btn')?.addEventListener('click', () => {
-    const materialValue = document.getElementById('material-id').value.toLowerCase(); // 画像取得のため小文字に
     const selectedSlot = document.querySelector('.slot.selected');
 
     if (!selectedSlot) {
-        alert("まず編集したいスロットをクリックして選択してください！");
+        alert("編集したいスロットを先にクリックしてください！");
         return;
     }
 
-    if (minecraftItems.includes(materialValue.toUpperCase())) {
-        // 画像を表示するためのimgタグを作成または更新
+    if (minecraftItems.includes(materialValue)) {
+        // 画像を表示
         let img = selectedSlot.querySelector('img');
         if (!img) {
             img = document.createElement('img');
             selectedSlot.appendChild(img);
         }
-        // アイテム画像をセット（外部APIを利用）
-        img.src = `https://mc-heads.net/item/${materialValue}`;
-        img.alt = materialValue;
+        // mc-headsのAPIで画像を表示（小文字にする必要がある）
+        img.src = `https://mc-heads.net/item/${materialValue.toLowerCase()}`;
+        img.style.width = '32px';
+        img.style.height = '32px';
         
         alert("✅ スロット " + selectedSlot.dataset.index + " に保存しました");
     } else {
-        alert("⚠️ 正しいアイテムIDを入力してください");
+        alert("⚠️ アイテムIDが正しくありません。");
     }
 });
