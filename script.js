@@ -1,32 +1,30 @@
 let minecraftItems = [];
-const SPRITE_SIZE = 32; // アイテム1つのサイズ
-const SHEET_WIDTH = 32; // 横に並んでいるアイテム数
 
 async function loadMinecraftItems() {
-    // 1.21対応のアイテムリストを取得
     const url = 'https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21.4/items.json';
     try {
         const response = await fetch(url);
-        minecraftItems = await response.json();
-        const dataList = document.getElementById('item-suggestions') || document.createElement('datalist');
-        dataList.id = 'item-suggestions';
-        document.body.appendChild(dataList);
-        document.getElementById('material-id').setAttribute('list', 'item-suggestions');
-        dataList.innerHTML = minecraftItems.map(item => `<option value="${item.name.toUpperCase()}">`).join('');
-    } catch (e) { console.error("データ読み込み失敗"); }
+        const data = await response.json();
+        minecraftItems = data.map(item => item.name.toUpperCase());
+        const dataList = document.getElementById('item-suggestions');
+        if (dataList) {
+            dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
+        }
+    } catch (e) { console.error("Data Load Error"); }
 }
 
 function initInventory() {
     const inventory = document.getElementById('inventory');
+    if (!inventory) return;
     inventory.innerHTML = '';
     for (let i = 0; i < 54; i++) {
         const slot = document.createElement('div');
         slot.classList.add('slot');
         slot.innerHTML = `<span>${i}</span>`;
-        slot.addEventListener('click', () => {
+        slot.onclick = () => {
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
             slot.classList.add('selected');
-        });
+        };
         inventory.appendChild(slot);
     }
 }
@@ -35,30 +33,48 @@ document.getElementById('save-btn')?.addEventListener('click', () => {
     const materialValue = document.getElementById('material-id').value.toUpperCase().trim();
     const selectedSlot = document.querySelector('.slot.selected');
 
-    if (!selectedSlot) return alert("スロットを選択してください");
-    
-    // アイテムを探す（IDまたは名前）
-    const itemData = minecraftItems.find(item => item.name.toUpperCase() === materialValue);
-    
-    if (itemData) {
-        selectedSlot.querySelectorAll('.item-icon, .no-img').forEach(el => el.remove());
+    if (!selectedSlot || !materialValue) return;
 
-        // スプライト上の位置を計算 (indexを利用)
-        const iconIndex = itemData.id; 
-        const x = (iconIndex % SHEET_WIDTH) * SPRITE_SIZE;
-        const y = Math.floor(iconIndex / SHEET_WIDTH) * SPRITE_SIZE;
+    selectedSlot.querySelectorAll('img, .no-img').forEach(el => el.remove());
 
-        const icon = document.createElement('div');
-        icon.className = 'item-icon';
-        icon.style.backgroundPosition = `-${x}px -${y}px`;
-        
-        selectedSlot.appendChild(icon);
-    } else {
-        alert("無効なアイテムIDです。候補から選んでください。");
-    }
+    const lowerId = materialValue.toLowerCase();
+    
+    // 【デバッグ済】最も表示確率が高いURLセット
+    // コンパスやポーションは mc-heads が最強です
+    const urls = [
+        `https://mc-heads.net/item/${lowerId}`,
+        `https://minecraft-api.vercel.app/images/items/${lowerId}.png`,
+        `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.21/items/${lowerId}.png`
+    ];
+
+    const img = document.createElement('img');
+    let attempt = 0;
+
+    const loadImg = (url) => {
+        console.log(`Trying: ${url}`);
+        img.src = url;
+    };
+
+    img.onerror = () => {
+        attempt++;
+        if (attempt < urls.length) {
+            loadImg(urls[attempt]);
+        } else {
+            const err = document.createElement('div');
+            err.className = 'no-img';
+            err.innerText = '無';
+            err.style.fontSize = '12px';
+            selectedSlot.appendChild(err);
+        }
+    };
+
+    img.onload = () => console.log(`Success: ${materialValue}`);
+
+    selectedSlot.appendChild(img);
+    loadImg(urls[0]);
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-    initInventory();
+window.onload = () => {
     loadMinecraftItems();
-});
+    initInventory();
+};
