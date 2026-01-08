@@ -1,75 +1,82 @@
-// 1. グローバル変数
+// 1. 全アイテムIDを保持する変数
 let minecraftItems = [];
 
 /**
- * アイテムデータを取得する（URLを修正しました）
+ * MinecraftのアイテムID一覧を取得する
+ * 1.21.4のデータURLに修正しました
  */
-async function initItemAutocomplete() {
+async function loadMinecraftItems() {
     const materialInput = document.getElementById('material-id');
     if (!materialInput) return;
 
-    // 複数のソースを試すようにして安定性を高めます
-    const urls = [
-        'https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21/items.json',
-        'https://unpkg.com/minecraft-data@latest/data/pc/1.21/items.json'
-    ];
+    // 正しいURLに修正 (1.21 -> 1.21.4)
+    const url = 'https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21.4/items.json';
 
-    for (const url of urls) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-            
-            const data = await response.json();
-            minecraftItems = data.map(item => item.name.toUpperCase());
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('データが見つかりませんでした(404)');
+        
+        const data = await response.json();
+        
+        // アイテムIDを抽出して大文字に変換
+        minecraftItems = data.map(item => item.name.toUpperCase());
 
-            // datalistの作成
-            let dataList = document.getElementById('item-suggestions');
-            if (!dataList) {
-                dataList = document.createElement('datalist');
-                dataList.id = 'item-suggestions';
-                document.body.appendChild(dataList);
-            }
-            materialInput.setAttribute('list', 'item-suggestions');
-            dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
-            
-            console.log("成功: " + minecraftItems.length + " 種類のアイテムを読み込みました。");
-            return; // 成功したらループを抜ける
-        } catch (error) {
-            console.warn("URL " + url + " からの取得に失敗しました。次の候補を試します。");
+        // 候補を表示するためのdatalistを作成
+        let dataList = document.getElementById('item-suggestions');
+        if (!dataList) {
+            dataList = document.createElement('datalist');
+            dataList.id = 'item-suggestions';
+            document.body.appendChild(dataList);
         }
+        
+        // 入力欄に紐付け
+        materialInput.setAttribute('list', 'item-suggestions');
+        dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
+        
+        console.log("✅ アイテム読み込み完了: " + minecraftItems.length + "種類");
+    } catch (error) {
+        console.error("❌ アイテムデータの取得に失敗しました:", error);
+        // 失敗した時のための最低限のバックアップ
+        minecraftItems = ["DIAMOND", "IRON_INGOT", "DIRT", "STONE", "CHEST"];
     }
-    console.error("すべてのソースからアイテムデータを取得できませんでした。");
 }
 
 /**
- * 54スロットを生成
+ * チェストの54スロットを画面に作る
  */
-function createInventory() {
+function initInventory() {
     const inventory = document.getElementById('inventory');
     if (!inventory) return;
-    inventory.innerHTML = ''; // 重複防止
+    inventory.innerHTML = ''; // 既存の中身をクリア
 
     for (let i = 0; i < 54; i++) {
         const slot = document.createElement('div');
         slot.classList.add('slot');
         slot.dataset.index = i;
-        slot.innerText = i; // 番号を表示（任意）
+        slot.addEventListener('click', () => {
+            console.log("スロット " + i + " が選択されました");
+            // 全スロットから選択状態を解除
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+            // クリックしたスロットを選択状態に
+            slot.classList.add('selected');
+        });
         inventory.appendChild(slot);
     }
 }
 
-// 起動時に実行
+// ページ読み込み時に実行
 window.addEventListener('DOMContentLoaded', () => {
-    createInventory();
-    initItemAutocomplete();
+    initInventory();
+    loadMinecraftItems();
 });
 
-// 保存ボタン
+// 保存ボタンの動作
 document.getElementById('save-btn')?.addEventListener('click', () => {
-    const val = document.getElementById('material-id').value.toUpperCase();
-    if (minecraftItems.length > 0 && !minecraftItems.includes(val)) {
-        alert("アイテムID '" + val + "' が見つかりません。正確に入力してください。");
+    const materialValue = document.getElementById('material-id').value.toUpperCase();
+    
+    if (minecraftItems.length > 0 && !minecraftItems.includes(materialValue)) {
+        alert("⚠️ アイテムID '" + materialValue + "' が見つかりません。\n正しいIDを入力してください。");
     } else {
-        alert("保存完了: " + val);
+        alert("✅ スロットに保存しました: " + materialValue);
     }
 });
