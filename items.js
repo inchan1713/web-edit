@@ -4,7 +4,7 @@ let MC_ITEMS = [];
 
 async function fetchMinecraftItems() {
     try {
-        // PrismarineJSが公開している1.21(最新)のデータを取得
+        // PrismarineJSが公開している1.21のデータを取得
         const response = await fetch('https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21/items.json');
         const data = await response.json();
         
@@ -12,8 +12,8 @@ async function fetchMinecraftItems() {
         MC_ITEMS = data.map(item => item.name.toUpperCase());
         console.log("アイテムリスト完了:", MC_ITEMS.length, "種類読み込みました");
     } catch (error) {
-        console.error("データの取得に失敗しました。予備リストを使用します。");
-        MC_ITEMS = ["STONE", "GRASS_BLOCK", "DIRT", "COBBLESTONE", "DIAMOND_SWORD"];
+        console.error("データの取得に失敗しました。");
+        MC_ITEMS = ["STONE", "DIAMOND_SWORD", "APPLE"]; // 最低限の予備
     }
 }
 
