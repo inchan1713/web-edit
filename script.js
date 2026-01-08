@@ -1,46 +1,54 @@
+// script.js
 const inventory = document.getElementById('inventory');
-const matInput = document.getElementById('mat');
+const matInput = document.getElementById('mat'); // マテリアルID入力欄
 
-// 54個のスロットを生成
+// 1. インベントリのスロット（54個）を生成
 for (let i = 0; i < 54; i++) {
     const slot = document.createElement('div');
     slot.classList.add('slot');
-    slot.setAttribute('data-slot', i);
+    slot.dataset.slot = i;
     
-    // スロット内に画像を表示するための要素を追加
-    const img = document.createElement('img');
-    img.style.display = 'none'; // 最初は隠しておく
-    slot.appendChild(img);
-
     slot.addEventListener('click', () => {
+        // 全スロットから選択解除し、クリックしたスロットを選択
         document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
         slot.classList.add('selected');
         
-        // 選択したスロットの情報を入力欄に反映（既存のデータがあれば）
-        const currentImg = slot.querySelector('img');
-        if(currentImg.src) {
-            // IDを逆算して入力欄に入れる処理など（後ほど拡張）
+        // すでに画像がある場合は、そのIDを入力欄に反映させる（利便性のため）
+        const img = slot.querySelector('img');
+        if (img && img.dataset.id) {
+            matInput.value = img.dataset.id;
         }
     });
     inventory.appendChild(slot);
 }
 
-// ID入力時に画像を自動反映
+// 2. マテリアルID入力時の画像表示処理
 matInput.addEventListener('input', (e) => {
-    const id = e.target.value.toUpperCase().trim();
+    const inputId = e.target.value.toUpperCase().trim();
     const selectedSlot = document.querySelector('.slot.selected');
 
-    if (selectedSlot && id !== "") {
-        const img = selectedSlot.querySelector('img');
-        // Minecraftのアイテム画像を提供しているAPIを利用
-        // 小文字にする必要があるため .toLowerCase() を使用
-        img.src = `https://minecraft-api.com/api/items/${id.toLowerCase()}/64.png`;
+    if (!selectedSlot) return;
+
+    // スロット内に img 要素がなければ作成
+    let img = selectedSlot.querySelector('img');
+    if (!img) {
+        img = document.createElement('img');
+        selectedSlot.appendChild(img);
+    }
+
+    if (inputId !== "") {
+        // 画像URLをセット (小文字にする必要がある)
+        img.src = `https://minecraft-api.com/api/items/${inputId.toLowerCase()}/64.png`;
         img.style.display = 'block';
         img.style.width = '32px';
         img.style.height = '32px';
-        img.style.imageRendering = 'pixelated'; // ドットをくっきりさせる
+        img.style.imageRendering = 'pixelated';
+        img.dataset.id = inputId; // IDをデータ属性に保存
 
-        // 画像が読み込めなかった場合（IDが間違っている時）は隠す
+        // 画像が存在しない（IDミス）ときは隠す
         img.onerror = () => { img.style.display = 'none'; };
+    } else {
+        img.style.display = 'none';
+        img.dataset.id = "";
     }
 });
