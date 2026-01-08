@@ -1,75 +1,98 @@
-/* --- ベースレイアウト --- */
+/* --- ベース設定 --- */
 body, html { 
     margin: 0; padding: 0; height: 100%; 
-    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; 
-    background: #11111b; color: #cdd6f4; overflow: hidden; 
+    font-family: "Segoe UI", "Meiryo", sans-serif; 
+    background: #0b0b10; color: #cdd6f4; overflow: hidden; 
 }
 .app { display: flex; height: 100vh; }
 
-/* --- サイドバー --- */
-.side { width: 220px; background: #181825; border-right: 1px solid #313244; flex-shrink: 0; }
-.logo { padding: 25px; font-weight: bold; font-size: 1.1rem; color: #fff; border-bottom: 1px solid #313244; letter-spacing: 1px; }
-.item { 
-    padding: 12px 20px; margin: 8px 10px; border-radius: 8px;
-    cursor: pointer; color: #a6adc8; font-size: 0.9rem; transition: 0.2s;
+/* --- ガラス質感のサイドバー --- */
+.side { 
+    width: 240px; 
+    background: rgba(24, 24, 37, 0.8); 
+    backdrop-filter: blur(10px); /* 背景を透かしてぼかす */
+    border-right: 1px solid rgba(255, 255, 255, 0.1); 
+    flex-shrink: 0; 
 }
-.item:hover { background: rgba(137, 180, 250, 0.1); color: #fff; }
-.item.active { background: #313244; color: #89b4fa; }
+.logo { 
+    padding: 30px 25px; font-weight: 900; font-size: 1.2rem; 
+    color: #89b4fa; text-shadow: 0 0 10px rgba(137, 180, 250, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+}
+.item { 
+    padding: 15px 20px; margin: 10px 15px; border-radius: 12px;
+    cursor: pointer; color: #a6adc8; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; transform: translateX(5px); }
+.item.active { background: #89b4fa; color: #11111b; font-weight: bold; box-shadow: 0 4px 15px rgba(137, 180, 250, 0.4); }
 
-/* --- 中央エリア --- */
-.main { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; background-color: #0f111a; overflow: hidden; }
+/* --- 中央：奥行きのある背景 --- */
+.main { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 .main::before {
     content: ""; position: absolute; top: -5%; left: -5%; right: -5%; bottom: -5%;
-    background-image: url('bg.png'); background-size: 400px; background-repeat: repeat;
-    image-rendering: pixelated; filter: blur(8px) brightness(0.3); z-index: 1;
+    background-image: url('bg.png'); background-size: 350px; background-repeat: repeat;
+    image-rendering: pixelated; filter: blur(6px) brightness(0.2); z-index: 1;
 }
 
-/* --- インベントリ --- */
+/* --- 進化したインベントリ --- */
 .inv-box { 
-    position: relative; z-index: 2; background: #c6c6c6; padding: 5px 12px 12px 12px; 
-    border: 3px solid #555; 
-    box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #fff, 0 30px 60px rgba(0,0,0,0.8); 
+    position: relative; z-index: 2; 
+    background: #c6c6c6; padding: 8px 15px 15px 15px; 
+    border: 4px solid #444; 
+    box-shadow: 
+        inset -4px -4px 0 #222, 
+        inset 4px 4px 0 #eee, 
+        0 40px 100px rgba(0,0,0,0.9); /* 超重厚な影 */
 }
-.inv-title { color: #3f3f3f; font-size: 14px; margin-bottom: 8px; font-weight: bold; }
-.grid { display: grid; grid-template-columns: repeat(9, 52px); gap: 2px; background: #8b8b8b; }
+.inv-title { color: #222; font-size: 13px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+.grid { display: grid; grid-template-columns: repeat(9, 54px); gap: 4px; background: #8b8b8b; padding: 2px; }
 
-/* スロット */
+/* スロット：立体感とアニメーション */
 .slot { 
-    width: 52px; height: 52px; background: #8b8b8b; 
-    border: 2px solid; border-color: #373737 #fff #fff #373737; 
+    width: 54px; height: 54px; background: #8b8b8b; 
+    border: 3px solid; border-color: #373737 #fff #fff #373737; 
     display: flex; align-items: center; justify-content: center; 
-    position: relative; transition: 0.1s;
+    position: relative; transition: all 0.1s;
 }
-.slot:hover { outline: 2px solid #fff; z-index: 5; background: rgba(255,255,255,0.2); cursor: pointer; }
-
-/* 選択中のスロットを強調 */
+.slot:hover { 
+    transform: scale(1.05); /* 少し大きく */
+    z-index: 10; 
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+    cursor: pointer; 
+}
+.slot:active { transform: scale(0.95); } /* 押した感 */
 .slot.selected {
-    outline: 3px solid #89b4fa;
-    outline-offset: -2px;
-    z-index: 10;
-    box-shadow: 0 0 15px rgba(137, 180, 250, 0.6);
-    background: rgba(137, 180, 250, 0.15);
+    outline: 4px solid #89b4fa; outline-offset: -2px;
+    background: rgba(137, 180, 250, 0.3);
+    box-shadow: 0 0 25px rgba(137, 180, 250, 0.8);
 }
 
-/* --- 右パネル --- */
-.prop { width: 320px; background: #181825; border-left: 1px solid #313244; padding: 25px; flex-shrink: 0; box-sizing: border-box; overflow-y: auto; }
-h3 { color: #f5c2e7; margin: 0 0 20px 0; border-bottom: 1px solid #313244; padding-bottom: 10px; font-size: 1.1rem; }
+/* --- 右パネル：ネオン・エディタ --- */
+.prop { 
+    width: 340px; background: #11111b; 
+    border-left: 1px solid rgba(255, 255, 255, 0.1); 
+    padding: 30px; flex-shrink: 0; box-sizing: border-box; 
+}
+h3 { color: #f5c2e7; margin: 0 0 25px 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+h3::before { content: "⚙️"; font-size: 1rem; }
 
-/* 入力グループ */
-.input-group { margin-bottom: 18px; }
-label { display: block; font-size: 11px; color: #89b4fa; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; }
+label { display: block; font-size: 10px; color: #89b4fa; margin-bottom: 8px; font-weight: 900; letter-spacing: 1.5px; }
 input, textarea { 
-    width: 100%; background: #1e1e2e; border: 1px solid #45475a; 
-    color: #fff; padding: 12px; border-radius: 6px; box-sizing: border-box; 
-    font-family: inherit; font-size: 13px; transition: 0.2s;
+    width: 100%; background: #181825; border: 1px solid #313244; 
+    color: #cdd6f4; padding: 14px; border-radius: 10px; box-sizing: border-box; 
+    font-family: "Consolas", monospace; font-size: 13px; transition: all 0.3s;
+    margin-bottom: 20px;
 }
-input:focus, textarea:focus { border-color: #89b4fa; outline: none; box-shadow: 0 0 8px rgba(137, 180, 250, 0.3); }
+input:focus, textarea:focus { 
+    border-color: #89b4fa; background: #1e1e2e;
+    box-shadow: 0 0 15px rgba(137, 180, 250, 0.2); outline: none; 
+}
 
-/* 保存ボタン */
 button { 
-    width: 100%; padding: 15px; background: #89b4fa; border: none; 
-    font-weight: bold; cursor: pointer; border-radius: 6px; 
-    color: #11111b; font-size: 14px; transition: 0.2s; margin-top: 10px;
+    width: 100%; padding: 18px; background: linear-gradient(135deg, #89b4fa, #b4befe); 
+    border: none; font-weight: 900; cursor: pointer; border-radius: 12px; 
+    color: #11111b; text-transform: uppercase; letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(137, 180, 250, 0.3); transition: all 0.3s;
 }
-button:hover { background: #b4befe; transform: translateY(-1px); }
-button:active { transform: translateY(0px); }
+button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(137, 180, 250, 0.5); }
