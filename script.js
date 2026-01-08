@@ -5,6 +5,7 @@ async function loadMinecraftItems() {
     const materialInput = document.getElementById('material-id');
     if (!materialInput) return;
 
+    // 最新のアイテムリストを取得
     const url = 'https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.21.4/items.json';
 
     try {
@@ -39,14 +40,16 @@ function initInventory() {
         slot.addEventListener('click', () => {
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
             slot.classList.add('selected');
+            console.log(`スロット ${i} が選択されました`);
         });
         inventory.appendChild(slot);
     }
 }
 
-// 3. 保存ボタンの動作（コンパス・ポーション対応版）
+// 3. 保存ボタン：画像取得の強化版
 document.getElementById('save-btn')?.addEventListener('click', () => {
-    const materialValue = document.getElementById('material-id').value.toUpperCase().trim();
+    const materialInput = document.getElementById('material-id');
+    const materialValue = materialInput.value.toUpperCase().trim();
     const selectedSlot = document.querySelector('.slot.selected');
 
     if (!selectedSlot) {
@@ -61,29 +64,37 @@ document.getElementById('save-btn')?.addEventListener('click', () => {
         const img = document.createElement('img');
         const lowerId = materialValue.toLowerCase();
 
-        // 画像取得の優先順位設定
-        const providers = [
-            `https://minecraft-api.vercel.app/images/items/${lowerId}.png`,
-            `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.21/items/${lowerId}.png`,
-            `https://mc-heads.net/item/${lowerId}`
+        // 画像取得URLリスト（上から順に試す）
+        const getUrls = (id) => [
+            `https://minecraft-api.vercel.app/images/items/${id}.png`,
+            `https://mc-heads.net/item/${id}`,
+            `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.21/items/${id}.png`
         ];
 
-        let currentProvider = 0;
-        img.src = providers[currentProvider];
+        let urls = getUrls(lowerId);
+        
+        // 特殊なアイテム名の補正
+        if(lowerId === 'compass') urls.unshift('https://minecraft.wiki/images/Compass_JE3_BE3.png');
+        if(lowerId === 'potion') urls.unshift('https://minecraft.wiki/images/ archive/Potion_JE3_BE2.png');
 
-        // 読み込み失敗時に次のプロバイダーを試す
+        let currentUrlIndex = 0;
+        img.src = urls[currentUrlIndex];
+
         img.onerror = () => {
-            currentProvider++;
-            if (currentProvider < providers.length) {
-                img.src = providers[currentProvider];
+            currentUrlIndex++;
+            if (currentUrlIndex < urls.length) {
+                img.src = urls[currentUrlIndex];
+            } else {
+                // 全て失敗した時の最終手段：文字を表示
+                console.warn(`画像が見つかりません: ${lowerId}`);
+                img.alt = "無";
             }
         };
 
-        img.alt = materialValue;
         selectedSlot.appendChild(img);
-        console.log(`スロット ${selectedSlot.dataset.index} に ${materialValue} を配置`);
+        console.log(`スロット ${selectedSlot.dataset.index} に ${materialValue} を配置しました`);
     } else {
-        alert("無効なアイテムIDです");
+        alert("無効なアイテムIDです。スペルを確認してください。");
     }
 });
 
