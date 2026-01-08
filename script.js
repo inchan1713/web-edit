@@ -11,8 +11,7 @@ async function loadMinecraftItems() {
         document.body.appendChild(dataList);
         document.getElementById('material-id').setAttribute('list', 'item-suggestions');
         dataList.innerHTML = minecraftItems.map(id => `<option value="${id}">`).join('');
-        console.log("✅ アイテム読み込み完了: " + minecraftItems.length);
-    } catch (e) { console.error("データ取得失敗", e); }
+    } catch (e) { console.error("データ取得失敗"); }
 }
 
 function initInventory() {
@@ -40,28 +39,33 @@ document.getElementById('save-btn')?.addEventListener('click', () => {
         const img = document.createElement('img');
         const lowerId = materialValue.toLowerCase();
 
-        // 解決策：高画質なWiki画像とAPIを組み合わせる
+        // 1. 特殊アイテムの画像名変換
+        let wikiName = materialValue.charAt(0) + lowerId.slice(1); // 先頭だけ大文字
+        if (materialValue === 'COMPASS') wikiName = 'Compass_JE3_BE3';
+        if (materialValue === 'POTION') wikiName = 'Potion_JE3_BE2';
+
+        // 2. 探しに行くURLのリスト（上から順に試す）
         const urls = [
-            `https://mc-heads.net/item/${lowerId}`, // コンパス、ポーション、ブロックすべてに強い
-            `https://minecraft-api.vercel.app/images/items/${lowerId}.png`,
-            `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.21/items/${lowerId}.png`
+            `https://mc-heads.net/item/${lowerId}`, // ここが一番ポーション類に強い
+            `https://minecraft.wiki/images/${wikiName}.png`, // 公式Wiki
+            `https://minecraft-api.vercel.app/images/items/${lowerId}.png`
         ];
 
         let idx = 0;
         img.src = urls[idx];
         img.onerror = () => {
             idx++;
-            if (idx < urls.length) img.src = urls[idx];
-            else {
-                console.warn("画像が見つかりません: " + lowerId);
-                img.alt = "❌";
+            if (idx < urls.length) {
+                img.src = urls[idx];
+            } else {
+                img.alt = "無";
+                console.log("画像が見つかりませんでした: " + materialValue);
             }
         };
 
         selectedSlot.appendChild(img);
-        console.log(`スロットに ${materialValue} を配置しました`);
     } else {
-        alert("アイテムIDが無効です。候補から選択してください。");
+        alert("アイテムIDが無効です");
     }
 });
 
